@@ -48,7 +48,7 @@ def notion_data_to_database(cred: credential, DATABASE_PATH):
         
 
         people = list(map(lambda x: x['id'], event.people['relation']))
-        people = [ID2NAME[person][-2:] for person in people]
+        people = [ID2NAME[person_id][-2:] for person_id in people]
         people = ', '.join(people)
         
         if people != '':
@@ -74,7 +74,7 @@ def notion_data_to_database(cred: credential, DATABASE_PATH):
     for index, row in DATABASE.iterrows():
         if row['notion_event_id'] not in [event.id for event in events]:
             erased.append(index)
-    DATABASE.drop(erased)
+    DATABASE = DATABASE.drop(erased)
     
     DATABASE.to_csv(DATABASE_PATH, index=False)
 
@@ -174,15 +174,16 @@ def main():
     # Authenticate with Google Calendar API
     service = build("calendar", "v3", credentials=google_auth(cred.OAuth2_path))
 
+    sync_notion_to_google_calendar(cred, DATABASE_PATH, service)
 
-    # Schedule the sync operation every 5 minutes
-    # schedule.every(5).minutes.do(sync_notion_to_google_calendar, cred)
-    schedule.every(30).minutes.do(sync_notion_to_google_calendar, cred, DATABASE_PATH, service) # for debug
+    # # Schedule the sync operation every 5 minutes
+    # schedule.every(60).minutes.do(sync_notion_to_google_calendar, cred, DATABASE_PATH, service)
+    # # schedule.every(5).seconds.do(sync_notion_to_google_calendar, cred, DATABASE_PATH, service) # for debug
     
-    # Run the scheduler in an infinite loop
-    while True:
-        schedule.run_pending()
-        time.sleep(1)  # Sleep for 1 second to avoid high CPU usage
+    # # Run the scheduler in an infinite loop
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(1)  # Sleep for 1 second to avoid high CPU usage
 
 if __name__ == "__main__":
     main()

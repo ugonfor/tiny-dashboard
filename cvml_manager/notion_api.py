@@ -28,7 +28,8 @@ def get_id2name(cred: credential, output_path) -> dict:
         
     df = pd.read_csv(output_path)
     for result in results:
-        df = df._append({'id': result['id'], 'name': result['properties']['이름']['title'][0]['plain_text']}, ignore_index=True)
+        if result['id'] not in df['id'].values:
+            df = df._append({'id': result['id'], 'name': result['properties']['이름']['title'][0]['plain_text']}, ignore_index=True)
     df.to_csv(output_path, index=False)
 
 
@@ -67,15 +68,16 @@ def get_database_after(day, cred: credential) -> list[notion_event]:
                             },
                         }
                     ]
-                }
+                },
             ]
         }
     }
 
     response = requests.post(url, headers=headers, json=data)
     results = response.json()['results']
-    
+
     results = [notion_event(event) for event in results]
+    results = list(filter(lambda x: hasattr(x, 'title'), results))
     return results
 
 def main(cred):
