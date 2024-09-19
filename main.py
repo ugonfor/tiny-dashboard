@@ -115,25 +115,38 @@ def database_to_calendar(DATABASE_PATH, service, calendar_id):
                                 'google_event_id': str})
     
     for index, row in DATABASE.iterrows():
+        event = {}
         if pd.isnull(row['google_event_id']):
 
-            # end_time + 1
-            # since end_day is not included in the event
-            end_time = datetime.datetime.strptime(row['time_end'], '%Y-%m-%d')
-            end_time += datetime.timedelta(days=1)
-            end_time = end_time.strftime('%Y-%m-%d')
+            if 'T' in row['time_end']:
+                start_time = datetime.datetime.fromisoformat(row['time_start']).isoformat()
+                end_time = datetime.datetime.fromisoformat(row['time_end']).isoformat()
 
+                event['summary'] = row['title']
+                event['start'] = {'dateTime': start_time, 'timeZone': 'Asia/Seoul'}
+                event['end'] = {'dateTime': end_time, 'timeZone': 'Asia/Seoul'}
 
-            event = {
-                'summary': row['title'],
-                'start': {
-                    'date': row['time_start'],
-                },
-                'end': {
-                    'date': end_time,
-                },
-            }
-            event = service.events().insert(calendarId=calendar_id, body=event).execute()
+            else:
+                # end_time + 1
+                # since end_day is not included in the event
+                end_time = datetime.datetime.strptime(row['time_end'], '%Y-%m-%d')
+                end_time += datetime.timedelta(days=1)
+                end_time = end_time.strftime('%Y-%m-%d')
+
+                event = {
+                    'summary': row['title'],
+                    'start': {
+                        'date': row['time_start'],
+                    },
+                    'end': {
+                        'date': end_time,
+                    },
+                }
+
+            try:
+                event = service.events().insert(calendarId=calendar_id, body=event).execute()
+            except:
+                breakpoint()
             DATABASE.at[index, 'google_event_id'] = event['id']
         else:
             event = service.events().get(calendarId=calendar_id, eventId=row['google_event_id']).execute()
@@ -141,22 +154,27 @@ def database_to_calendar(DATABASE_PATH, service, calendar_id):
             # end_time + 1
             # since end_day is not included in the event
             
-            try:
-                end_time = datetime.datetime.strptime(row['time_end'].split("T")[0], '%Y-%m-%d')
-            except:
-                breakpoint()
-            end_time += datetime.timedelta(days=1)
-            end_time = end_time.strftime('%Y-%m-%d')
+            if 'T' in row['time_end']:
+                start_time = datetime.datetime.fromisoformat(row['time_start']).isoformat()
+                end_time = datetime.datetime.fromisoformat(row['time_end']).isoformat()
 
-            
-            event['summary'] = row['title']
-            event['start']['date'] = row['time_start']
-            event['end']['date'] = end_time
+                event['summary'] = row['title']
+                event['start'] = {'dateTime': start_time, 'timeZone': 'Asia/Seoul'}
+                event['end'] = {'dateTime': end_time, 'timeZone': 'Asia/Seoul'}
+            else:
+                start_time = datetime.datetime.strptime(row['time_start'], '%Y-%m-%d').strftime('%Y-%m-%d')
+                end_time = datetime.datetime.strptime(row['time_end'], '%Y-%m-%d') # .split("T")[0]
+                end_time += datetime.timedelta(days=1)
+                end_time = end_time.strftime('%Y-%m-%d')
+
+                
+                event['summary'] = row['title']
+                event['start']['date'] = start_time
+                event['end']['date'] = end_time
 
             updated_event = service.events().update(calendarId=calendar_id, eventId=row['google_event_id'], body=event).execute()
             DATABASE.at[index, 'google_event_id'] = updated_event['id']
 
-    
 
     DATABASE.to_csv(DATABASE_PATH, index=False)
 
