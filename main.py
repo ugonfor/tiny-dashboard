@@ -140,7 +140,11 @@ def database_to_calendar(DATABASE_PATH, service, calendar_id):
             
             # end_time + 1
             # since end_day is not included in the event
-            end_time = datetime.datetime.strptime(row['time_end'], '%Y-%m-%d')
+            
+            try:
+                end_time = datetime.datetime.strptime(row['time_end'].split("T")[0], '%Y-%m-%d')
+            except:
+                breakpoint()
             end_time += datetime.timedelta(days=1)
             end_time = end_time.strftime('%Y-%m-%d')
 
@@ -166,6 +170,9 @@ def sync_notion_to_google_calendar(cred: credential, DATABASE_PATH, service):
 
 
 def main():
+    import time
+    print(f"Start at {datetime.datetime.now()}")
+
     # Load credentials
     cred = credential('./keys/secrets.yaml', './keys/credentials.json')
     
