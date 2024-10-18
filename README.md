@@ -15,6 +15,5 @@ crontab -e
 ```
 
 ```
-PATH=$PATH:$PWD
-python ./main.py > $PWD/log.txt
+0 * * * * cd /path/to/notion2google-calendar && python main.py > log.txt
 ```
