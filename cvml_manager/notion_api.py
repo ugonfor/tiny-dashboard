@@ -48,7 +48,7 @@ def get_database_after(day, cred: credential) -> list[notion_event]:
         "filter": {
             'and':[
                 {
-                    "property": "날짜",
+                    "property": "Date",
                     "date": {
                     "on_or_after": day
                     }

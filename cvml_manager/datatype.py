@@ -16,9 +16,9 @@ class notion_event:
         try:
             self.id = event['id']
             self.title = event['properties']['Name']['title'][0]['plain_text']
-            self.start_time = event['properties']['날짜']['date']['start']
+            self.start_time = event['properties']['Date']['date']['start']
             
-            self.end_time = event['properties']['날짜']['date']['end'] 
+            self.end_time = event['properties']['Date']['date']['end'] 
             if self.end_time is None:
                 self.end_time = self.start_time
                 
