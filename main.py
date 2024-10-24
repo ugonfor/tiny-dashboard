@@ -9,12 +9,22 @@ import pandas as pd
 
 from googleapiclient.discovery import build
 
-DATABASE_PATH = 'eventinfo.csv'
-ID2NAME_PATH = 'id2name.csv'
+import os
 
+DATABASE_PATH = 'datas/eventinfo.csv'
+ID2NAME_PATH = 'datas/id2name.csv'
+
+# Initialize csv
+if os.path.exists(DATABASE_PATH) == False:
+    pd.DataFrame(columns=['event_id', 'title', 'time_start', 'time_end', 'notion_event_id', 'google_event_id']).to_csv(DATABASE_PATH, index=False)
+if os.path.exists(ID2NAME_PATH) == False:
+    pd.DataFrame(columns=['id', 'name']).to_csv(ID2NAME_PATH, index=False)
 
 global ID2NAME
 ID2NAME = pd.read_csv(ID2NAME_PATH).set_index('id').to_dict()['name']
+
+
+
 def notion_data_to_database(cred: credential, DATABASE_PATH):
 
     today = datetime.datetime.now()
