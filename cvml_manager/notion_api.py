@@ -61,12 +61,6 @@ def get_database_after(day, cred: credential) -> list[notion_event]:
                                 "equals": True
                             },
                         },
-                        {
-                            "property": "디데이표기",
-                            "checkbox": {
-                                "equals": True
-                            },
-                        }
                     ]
                 },
             ]
@@ -96,5 +90,9 @@ def main(cred):
     
 if __name__ == '__main__':
     cred = credential('./keys/secrets.yaml', './keys/credentials.json')
-    main(cred)
+    try:
+        main(cred)
+    except Exception as e:
+        print(e)
+
     

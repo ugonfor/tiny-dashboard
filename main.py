@@ -211,4 +211,11 @@ def main():
     #     time.sleep(1)  # Sleep for 1 second to avoid high CPU usage
 
 if __name__ == "__main__":
-    main()
+    
+    # exception handling
+    # print error message and traceback
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
